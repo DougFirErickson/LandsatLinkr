@@ -13,7 +13,6 @@ trim_na_rowcol = function(imgfile, outimg, maskfile, outmask){
   #trim the stack
   x = raster(imgfile, band=1)
   cres = 0.5*res(x)
-  #crs <- projection(x) 
   y = x
   x = matrix(as.array(x),nrow=nrow(x),ncol=ncol(x))
   r.na = c.na <- c()
@@ -23,7 +22,21 @@ trim_na_rowcol = function(imgfile, outimg, maskfile, outmask){
   r2 = nrow(x) -  which(diff(which(rev(r.na)))>1)[1]
   c1 = 1 + which(diff(which(c.na))>1)[1] 
   c2 = ncol(x) - which(diff(which(rev(c.na)))>1)[1]
-  #x = x[r1:r2,c1:c2]
+  
+  #if there are no NA rows and cols, then set to default row and col start and end
+  if(is.na(r1)){
+    if(r.na[1] == T){r1 = 1+length(which(r.na))} else {r1 = 1}
+  }
+  if(is.na(r2)){
+    if(rev(r.na)[1] == T){r2 = nrow(x) - length(which(r.na))} else {r2 = nrow(x)}
+  }
+  if(is.na(c1)){
+    if(c.na[1] == T){c1 = 1+length(which(c.na))} else {c1 = 1}
+  }
+  if(is.na(c2)){
+    if(rev(c.na)[1] == T){c2 = ncol(x) - length(which(c.na))} else {c2 = ncol(x)}
+  }
+  
   xs = xFromCol(y,col=c(c1,c2)) + c(-1,1)*cres[1]
   ys = yFromRow(y,row=c(r2,r1)) + c(-1,1)*cres[2]
     

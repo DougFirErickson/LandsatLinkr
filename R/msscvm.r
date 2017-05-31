@@ -14,15 +14,8 @@
 
 
 msscvm = function(file, demfile, topoprep, test=F, overwrite=F){
-  #msscvm
-  #get the metadata
-#   file="E:/llr_test/mixed/mss/wrs1/036032/images/1973/LM10360321973191_reflectance.tif"
-#   demfile="E:/llr_test/mixed/mss/wrs1/036032/topo/wrs1_036032_60m_dem.tif"
-#   topoprep = T
-#   test=F
-  
+
   check = file_check(file,"cloudmask.tif",overwrite)
-  print(check)
   if(check == 0){return(0)}
   
   ref = raster(file)
@@ -55,11 +48,8 @@ msscvm = function(file, demfile, topoprep, test=F, overwrite=F){
     aspect = crop(aspect,ref)
     
     ill = as.matrix(hillShade(slope, aspect, angle=info$sunelev, direction=info$sunaz, normalize=F))
-#     hill = hillShade(slope, aspect, angle=info$sunelev, direction=info$sunaz, normalize=F)
-#     hillfile = sub("reflectance","hillshade",file)
-#     writeRaster(hill, hillfile)
-#     ill = as.matrix(hill)
   }
+  
   if(topoprep == F){
     dem = raster(demfile)
     dem_ex  = alignExtent(dem, ref, snap="near")

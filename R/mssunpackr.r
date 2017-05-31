@@ -12,12 +12,18 @@
 mssunpackr = function(file, proj, overwrite=F){
   
   check = file_check(file,"archv.tif",overwrite)
-  print(check)
   if(check == 0){return(0)}
+  
+  filebase = basename(file)
+  year = as.numeric(substr(filebase, 10, 13))
+  if(year >= 1995){
+    delete_files(file, 6)
+    return(0)
+  }
   
   randomstring = paste(sample(c(0:9, letters, LETTERS), 6, replace=TRUE),collapse="")
   tempdir = file.path(dirname(file),randomstring) #temp
-  untar(file, exdir=tempdir) #decompress the file
+  untar(file, exdir=tempdir, tar="internal") #decompress the file
   mtlfile = list.files(tempdir, pattern = "MTL.txt", full.names = T, recursive = T)
   tbl = unlist(read.delim(mtlfile, header=F, skipNul=T))
   dtype = as.character(grep("DATA_TYPE = ", tbl, value=T))
@@ -28,9 +34,7 @@ mssunpackr = function(file, proj, overwrite=F){
     tiffiles = allfiles[grep("TIF",allfiles)] #subset the tif image files
     verfile = allfiles[grep("VER.txt",allfiles)]
     otherfiles = allfiles[grep("TIF",allfiles, invert=T)] #subset the other files
-    filebase = basename(tiffiles[1]) #get the basename
     filedir = dirname(file) #get the directory
-    year = substr(filebase, 10, 13) #get the year
     pieces = unlist(strsplit(filedir, "/")) #break up the directory and unlist so the pieces can be called by index
     len = length(pieces)-1 #get the ending index for "scene"
     newpieces = paste(pieces[1:len], collapse = "/") #subset the directory pieces so the last piece is the scene
@@ -100,8 +104,9 @@ mssunpackr = function(file, proj, overwrite=F){
     unlink(tempdir, recursive=T, force=T) #delete the temp directory
     return(1)
   } else {
-
-    delete_files(file,1)
+    l1goutdir = dirname(sub("targz","l1g_images",file))
+    dir.create(l1goutdir, recursive=T, showWarnings=F) #make a new output directory
+    file.rename(file, file.path(l1goutdir,basename(file)))
     unlink(c(tempdir), recursive=T, force=T)
     return(0)
   }

@@ -25,7 +25,6 @@ run_landsatlinkr = function(){
     if(selection == "Calibrate MSS to TM"){process = 8}
     if(selection == "Calibrate OLI to ETM+"){process = 9}
     if(selection == "Composite imagery"){process = 10}
-    #if(selection == "Fit neat lines"){process = 9}
     
     print(paste("You have selected:",selection))
     correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
@@ -92,13 +91,6 @@ run_landsatlinkr = function(){
       if(correct == "Exit"){return("Stopping LLR")}
     }
     
-    
-    #choices = c("USGS North American Albers", "User-provided projection","Native NAD83 UTM (not recommended!)", )
-    #selection = select.list(choices, title = "Select a map projection to use")
-    #if(selection == "Native NAD83 UTM (not recommended!)"){proj = "default"}
-    #if(selection == "USGS North American Albers"){proj = "albers"}
-    #if(selection == "User-provided"){
-    
     #################################################################################################################
     #define a projection
     
@@ -107,20 +99,9 @@ run_landsatlinkr = function(){
       print("Please define a projection to use for this project")
       print("If you need assistance, see the 'Selecting a geographic projection' section in the user manual")
       print("If you want to exit, press the 'return' key and then select 'Exist'")
-      #choices = c("Manual PROJ.4 definition", "Extract PROJ.4 from a reference raster")
-      #selection = select.list(choices, title = "How do you want to define the projection")
-      #if(selection =="Manual PROJ.4 definition"){
+
       proj = readline("  Provide PROJ.4 string: ") #http://spatialreference.org/
-      #       }
-      #       if(selection == "Extract PROJ.4 from a reference raster"){
-      #         file = choose.files(caption = "Select a raster file to extract projection information from", multi=F)
-      #         proj = gdalsrsinfo(srs_def=file,o="proj4")
-      #         proj = sub("'","",proj)
-      #         proj = sub(" '","",proj)
-      #       }
-      #}
-      #}
-      
+
       print(paste("You have selected:",proj))
       correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
       if(correct == "Exit"){return("Stopping LLR")}
@@ -139,7 +120,6 @@ run_landsatlinkr = function(){
         if(correct == "Exit"){return("Stopping LLR")}
       }
     }
-    #return(list(scenedir, demfile, proj, reso, process,cores))
     prepare_images(scenedir, demfile, proj=proj, process=process,cores=cores, overwrite=overwrite)
   }
   
@@ -212,49 +192,71 @@ run_landsatlinkr = function(){
     
     if(sum(process %in% 10) > 0){
     
-      msswrs1dir=NULL
-      msswrs2dir=NULL
-      tmwrs2dir=NULL
-      oliwrs2dir=NULL
+      msswrs1dir=NA
+      msswrs2dir=NA
+      tmwrs2dir=NA
+      oliwrs2dir=NA
     
       correct = "No"
       while(correct == "No"){
         choices = c("Yes", "No")
-        msswrs1dir = choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'")
-        answer = "Yes"
-        while(answer == "Yes"){
-          print("Here is what you have so far - MSS WRS-1 scene:")
-          print(msswrs1dir)
-          answer = select.list(choices, title = "Is there another MSS WRS-1 scene directory to add?")
-          if(answer == "Yes"){msswrs1dir = c(msswrs1dir, choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'"))}
+        
+
+        doType = select.list(c("Yes","No","Exit"), title = "Are there MSS WRS-1 images you would like to include in composites?")
+        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Yes"){
+          msswrs1dir = choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'")
+          answer = "Yes"
+          while(answer == "Yes"){
+            print("Here is what you have so far - MSS WRS-1 scene:")
+            print(msswrs1dir)
+            answer = select.list(choices, title = "Is there another MSS WRS-1 scene directory to add?")
+            if(answer == "Yes"){msswrs1dir = c(msswrs1dir, choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'"))}
+          }
+        }
+
+        
+
+        doType = select.list(c("Yes","No","Exit"), title = "Are there MSS WRS-2 images you would like to include in composites?")
+        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Yes"){        
+          msswrs2dir = choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'")
+          answer = "Yes"
+          while(answer == "Yes"){
+            print("Here is what you have so far - MSS WRS-2 scene:")
+            print(msswrs2dir)
+            answer = select.list(choices, title = "Is there another MSS WRS-2 scene directory to add?")
+            if(answer == "Yes"){msswrs2dir = c(msswrs2dir, choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'"))}
+          }
         }
         
-        msswrs2dir = choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'")
-        answer = "Yes"
-        while(answer == "Yes"){
-          print("Here is what you have so far - MSS WRS-2 scene:")
-          print(msswrs2dir)
-          answer = select.list(choices, title = "Is there another MSS WRS-2 scene directory to add?")
-          if(answer == "Yes"){msswrs2dir = c(msswrs2dir, choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'"))}
+        
+        doType = select.list(c("Yes","No","Exit"), title = "Are there TM/ETM+ WRS-2 images you would like to include in composites?")
+        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Yes"){            
+          tmwrs2dir = choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
+          answer = "Yes"
+          while(answer == "Yes"){
+            print("Here is what you have so far - TM/ETM+ WRS-2 scene:")
+            print(tmwrs2dir)
+            answer = select.list(choices, title = "Is there another TM/ETM+ WRS-2 scene directory to add?")
+            if(answer == "Yes"){tmwrs2dir = c(tmwrs2dir, choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'"))}
+          }
         }
         
-        tmwrs2dir = choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
-        answer = "Yes"
-        while(answer == "Yes"){
-          print("Here is what you have so far - TM/ETM+ WRS-2 scene:")
-          print(tmwrs2dir)
-          answer = select.list(choices, title = "Is there another TM/ETM+ WRS-2 scene directory to add?")
-          if(answer == "Yes"){tmwrs2dir = c(tmwrs2dir, choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'"))}
-        } 
         
-        oliwrs2dir = choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'")
-        answer = "Yes"
-        while(answer == "Yes"){
-          print("Here is what you have so far - OLI WRS-2 scene:")
-          print(oliwrs2dir)
-          answer = select.list(choices, title = "Is there another OLI WRS-2 scene directory to add?")
-          if(answer == "Yes"){oliwrs2dir = c(oliwrs2dir, choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'"))}
-        } 
+        doType = select.list(c("Yes","No","Exit"), title = "Are there OLI WRS-2 images you would like to include in composites?")
+        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Yes"){  
+          oliwrs2dir = choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'")
+          answer = "Yes"
+          while(answer == "Yes"){
+            print("Here is what you have so far - OLI WRS-2 scene:")
+            print(oliwrs2dir)
+            answer = select.list(choices, title = "Is there another OLI WRS-2 scene directory to add?")
+            if(answer == "Yes"){oliwrs2dir = c(oliwrs2dir, choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'"))}
+          } 
+        }
         
         print(paste("You have selected MSS WRS-1 scene:",msswrs1dir))
         print(paste("You have selected MSS WRS-2 scene:",msswrs2dir))
@@ -274,21 +276,7 @@ run_landsatlinkr = function(){
         if(correct == "Exit"){return("Stopping LLR")}
       }
       
-      #         choices = c("Tasseled cap angle",
-      #                     "Tasseled cap brightness",
-      #                     "Tasseled cap greenness",
-      #                     "Tasseled cap wetness",
-      #                     "All")
-      #         selection = select.list(choices, title = "Select an index to create composites for")
-      #         if(selection == "Tasseled cap angle"){index = "tca"}
-      #         if(selection == "Tasseled cap brightness"){index = "tcb"}
-      #         if(selection == "Tasseled cap greenness"){index = "tcg"}
-      #         if(selection == "Tasseled cap wetness"){index = "tcw"}
-      #         if(selection == "All"){index = "all"}
-      
-      #################################################################################################################
-      #run name
-      
+
       correct = "No"
       while(correct == "No"){
         runname = readline("Provide a unique name for the composite series. ex. project1: ")
@@ -300,9 +288,22 @@ run_landsatlinkr = function(){
       #################################################################################################################
       #use area file or coordinates
       
+
+      
+      
       choices = c("From file",
                   "Provide coordinates")
       selection = select.list(choices, title = "What area do you want to create composites for?")
+      
+      #find a files to get the project reference
+      dirToCheck = c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1],oliwrs2dir[1])
+      projfiles = list.files(path = file.path(dirToCheck[1], "images"), pattern=".tif$", full.names=T, recursive=T)
+      if(length(projfiles) == 0){projfiles = list.files(path = file.path(dirToCheck[2], "images"), pattern=".tif$", full.names=T, recursive=T)}
+      if(length(projfiles) == 0){projfiles = list.files(path = file.path(dirToCheck[3], "images"), pattern=".tif$", full.names=T, recursive=T)} 
+      if(length(projfiles) == 0){projfiles = list.files(path = file.path(dirToCheck[4], "images"), pattern=".tif$", full.names=T, recursive=T)}
+      projfile = projfiles[1]
+      
+      #deal with the selection
       if(selection == "From file"){
         correct = "No"
         while(correct == "No"){
@@ -310,10 +311,10 @@ run_landsatlinkr = function(){
           print(paste("You have selected:",useareafile))
           correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
           if(correct == "Exit"){return("Stopping LLR")}
+          
+          make_usearea_file_bsq(useareafile, projfile)
         }
-      }
-      
-      if(selection == "Provide coordinates"){
+      } else if(selection == "Provide coordinates"){
         
         correct = "No"
         while(correct == "No"){
@@ -338,22 +339,69 @@ run_landsatlinkr = function(){
         useareafile = file.path(outdir, paste(runname,"_usearea.tif",sep=""))
         make_usearea_file(c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1],oliwrs2dir[1]), useareafile, xmx, xmn, ymx, ymn)
       }
+      
+      #dates
+      cat("\n\n")
+      cat("The following two parameter inputs are the minimum and maximum day-of-year to include in your composites.\nExample: June 15th through August 31st would be 166 and 243.\nFor more information see the LLR guide page: http://landsatlinkr.jdbcode.com/guide.html#doy")
+      cat("\n\n")
+      correct = "No"
+      while(correct == "No"){
+        startday = as.numeric(readline("Define a minimum day-of-year to include in the composites: "))
+        cat("You have selected:",startday,"\n")
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
+      }
+      
+      correct = "No"
+      while(correct == "No"){
+        endday = as.numeric(readline("Define a maximum day-of-year to include in the composites: "))
+        cat("You have selected:",endday,"\n")
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
+      }
+      
+      
+      #figure out how to name the files
+      yearadj = 0
+      if((endday-startday) < 0){
+        cat("\n")
+        correct = "No"
+        while(correct == "No"){
+          yearadjanswer = select.list(c("Pre","Post"), title = "Your date range crosses the year divide, would you like to label the annual composite files with the pre- or post- divide year?")
+          cat("You have selected:",yearadjanswer,"\n")
+          correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+          if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
+          if(yearadjanswer == "Post"){yearadj = 1}
+        }
+      }
+      
+      #overlap methods
+      correct = "No"
+      while(correct == "No"){
+        choices = c("Mean",
+                    "Maximum",
+                    "Minimum",
+                    "Median *long processing time*")#,
+        #"Fit neat lines")
+        
+        overlap = select.list(choices, title = "Select a method to summarize the value of overlapping pixels")
+        
+        print(paste("You have selected:",overlap))
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return("Stopping LLR")}
+        
+        if(overlap == "Mean"){overlap = "mean"}
+        if(overlap == "Maximum"){overlap = "max"}
+        if(overlap == "Minimum"){overlap = "min"}
+        if(overlap == "Median *long processing time*"){overlap = "median"}
+        
+      }
       calcomprocess = 3
     }
-    #}
-    #if(sum((process %in% 7) > 0)){process[1] = 1}
-    #if(sum((process %in% 8) > 0)){process[process==8] = 2}
-    #return(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,cores,process)
     
     #################################################################################################################
     #execute the calibrate_and_composite function
     
-    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=cores, process=calcomprocess, overwrite=overwrite)
+    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap=overlap, cores=cores, process=calcomprocess, overwrite=overwrite, startday=startday, endday=endday, yearadj=yearadj)  #overlap="mean"
   }
-  
-  #if(sum(process %in% 9 > 0)){
-  #  dir = choose.dir(caption = "Select a composites directory from which to find image composite stacks")
-  #  cores = readline("How many cores to use to process in parallel?: ")
-  #  run_neatline(dir, cores)
-  #}
 }

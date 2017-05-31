@@ -14,7 +14,6 @@ tmunpackr = function(file, proj="default", overwrite=F){
   # http://earthexplorer.usgs.gov/ Landsat CDR TM and ETM+ images
   
   check = file_check(file,"ledaps.tif",overwrite)
-  print(check)
   if(check == 0){return(0)}
   
   #set new directories
@@ -30,7 +29,7 @@ tmunpackr = function(file, proj="default", overwrite=F){
   dir.create(outdir, recursive=T, showWarnings=F)
   
   #decompress the image and get/set files names
-  untar(file, exdir=tempdir) #decompress the file
+  untar(file, exdir=tempdir, tar="internal") #decompress the file
   files = list.files(tempdir, full.names=T)
   bands = grep("band", files, value=T)
   shadow = grep("cloud_shadow_qa.tif", files, value=T) #0 okay, 255 bad
@@ -112,12 +111,9 @@ tmunpackr = function(file, proj="default", overwrite=F){
   bright = (b1*bcoef[1])+(b2*bcoef[2])+(b3*bcoef[3])+(b4*bcoef[4])+(b5*bcoef[5])+(b6*bcoef[6])
   green = (b1*gcoef[1])+(b2*gcoef[2])+(b3*gcoef[3])+(b4*gcoef[4])+(b5*gcoef[5])+(b6*gcoef[6])
   wet = (b1*wcoef[1])+(b2*wcoef[2])+(b3*wcoef[3])+(b4*wcoef[4])+(b5*wcoef[5])+(b6*wcoef[6])
-  #if(tcset == "all" | tcset == "tc"){wet = (b1*wcoef[1])+(b2*wcoef[2])+(b3*wcoef[3])+(b4*wcoef[4])+(b5*wcoef[5])+(b6*wcoef[6])}
-  
+
   b1=b2=b3=b4=b5=b6=0
-  #gc()
-  #calc tc and convert to a raster
-  #if(tcset == "all" | tcset == "tc"){
+
   tcb = matrix_to_raster(finalstack,bright)
   tcg = matrix_to_raster(finalstack,green)
   tcw = matrix_to_raster(finalstack,wet)

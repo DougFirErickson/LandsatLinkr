@@ -84,59 +84,12 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
   #cloudmask
   if(all(is.na(match(process,5))) == F){
     print("Running msscvm")
-    files = list.files(imgdir, pattern="reflectance", full.names=T, recursive=T) #"radiance.tif"
-    
-    print("...Preparing DEM")
-    examplefile = files[1]
-    dname = dirname(examplefile)
-    scenedir = substr(dname,1,nchar(dname)-12)
-    topodir = file.path(scenedir,"topo")
-    dir.create(topodir, showWarnings=F)
-    info = get_metadata(examplefile)
-    template = raster(examplefile)
-    reso = xres(template)
-    demname = paste(info$wrstype,"_",info$ppprrr,"_",reso,"m","_dem.tif",sep="")
-    newdem = file.path(topodir,demname)
-    newslope = sub("dem","slope",newdem)
-    newasp = sub("dem","aspect",newdem)
-    newill = sub("dem","illumination",newdem)
-    s_srs = projection(template)
-    t_srs = set_projection(examplefile)
-    
-    havedem = file.exists(newdem)
-    if(havedem == T & overwrite == T | havedem == F){
-      if(havedem == T){unlink(newdem)}
-      gdalwarp(srcfile=demfile,dstfile=newdem,
-               s_srs=s_srs,t_srs=t_srs, tr=c(60,60), dstnodata=-32768, ot="Int16")
-    }
-    
-    dem = raster(newdem)
-    
-    haveslope = file.exists(newslope)
-    if(haveslope == T & overwrite == T | haveslope == F){
-      if(haveslope == T){unlink(newslope)}
-      print("...Preparing Slope")
-      img = terrain(dem, opt="slope")
-      projection(img) = set_projection(examplefile)
-      img = as(img, "SpatialGridDataFrame")
-      writeGDAL(img, newslope, drivername = "GTiff", type = "Float32", options="INTERLEAVE=BAND") #, mvFlag = -32768
-    }
-    
-    haveasp = file.exists(newasp)
-    if(haveasp == T & overwrite == T | haveasp == F){
-      if(haveasp == T){unlink(newasp)}
-      print("...Preparing Aspect")
-      img = terrain(dem, opt="aspect")
-      projection(img) = set_projection(examplefile)
-      img = as(img, "SpatialGridDataFrame")
-      writeGDAL(img, newasp, drivername = "GTiff", type = "Float32", options="INTERLEAVE=BAND") #, mvFlag = -32768  
-    }
-    
-    img=0
-    
+    #prepare the topo layers required by msscvm
+    newdem = prepare_topo(imgdir, demfile)
     print("...Making masks")
+    files = list.files(imgdir, pattern="reflectance", full.names=T, recursive=T)
     t = proc.time()
-    for(i in 1:length(files)){msscvm(files[i], newdem, topoprep=T, test=F, overwrite=overwrite)} #demfile
+    for(i in 1:length(files)){msscvm(files[i], newdem, topoprep=T, test=F, overwrite=overwrite)}
     print(proc.time()-t)
   }
   

@@ -1,26 +1,24 @@
 Package: LandsatLinkr
 Title: Tools to spectrally link Landsat data
-Version: 0.2.0
-Date: 2015-08-19
-Author: Justin Braaten <justin.braaten@oregonstate.edu>
-Maintainer: Justin Braaten <justin.braaten@oregonstate.edu>
-Description: An automated system for processing large volumes of Landsat imagery and building long spectrally consistent chronologies across MSS, TM/ETM+, and OLI sensors
+Version: 0.4.0
+Date: 2016-08-17
+Authors@R: c(person("Justin", "Braaten", email = "jstnbraaten@gmail.com", role = c("aut", "cre")),
+    person("Warren", "Cohen", email = "warren.cohen@oregonstate.edu", role = "aut"),
+    person("Zhiqiang", "Yang", email = "zhiqiang.yang@oregonstate.edu", role = "aut"))
+Description: An automated system for processing large volumes of Landsat imagery
+    and building long spectrally consistent chronologies across MSS, TM/ETM+, and
+    OLI sensors
 Depends:
     raster,
     SDMTools,
     doParallel,
     foreach,
-    ggplot2,
-    MASS,
-    gridExtra,
-    zoo,
-    segmented,
     plyr,
-    ecp,
     gdalUtils,
     rgdal,
     igraph,
-    hexbin
-License: MIT
+    MASS
+License: GPL-2
+URL: http://landsatlinkr.jdbcode.com/
 LazyData: true
-URL: http://landsatlinkr.weebly.com/
+RoxygenNote: 5.0.1
